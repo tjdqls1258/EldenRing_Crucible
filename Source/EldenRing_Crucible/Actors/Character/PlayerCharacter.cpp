@@ -5,6 +5,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Components/Combat/CombatComponents.h"
+#include "Components/Combat/LockOnComponent.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -20,6 +21,7 @@ APlayerCharacter::APlayerCharacter()
     camera->bUsePawnControlRotation = false;
 
 	combatComponents = CreateDefaultSubobject<UCombatComponents>(TEXT("CombatComponents"));
+    lockOnComponents = CreateDefaultSubobject<ULockOnComponent>(TEXT("LockOnComponents"));
 
     bUseControllerRotationYaw = false;
     GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -47,6 +49,8 @@ void APlayerCharacter::BeginPlay()
     {
         GetCharacterMovement()->MaxWalkSpeed = speed;
 	}
+
+	lockOnComponents->OnLockOnChanged.AddDynamic(this, &ThisClass::UpdateRotationMode);
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -63,8 +67,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		eic->BindAction(MoveAction,         ETriggerEvent::Triggered,this, &ThisClass::Move             );
 		eic->BindAction(LookAction,         ETriggerEvent::Triggered,this, &ThisClass::Look             );
         eic->BindAction(JumpAction,         ETriggerEvent::Started,  this, &ThisClass::Jump             );
-        eic->BindAction(AttackAction,       ETriggerEvent::Triggered,this, &ThisClass::Attack           );
+        eic->BindAction(AttackAction,       ETriggerEvent::Started,  this, &ThisClass::Attack           );
         eic->BindAction(LockOnAction,       ETriggerEvent::Started,  this, &ThisClass::LockOn           );
+        eic->BindAction(LockOnSwitchAction, ETriggerEvent::Started,  this, &ThisClass::LockOnSwitch     );
         eic->BindAction(SprintAction,       ETriggerEvent::Triggered,this, &ThisClass::SprintStart      ); 
         eic->BindAction(SprintAction,       ETriggerEvent::Completed,this, &ThisClass::SprintEnd        );
         eic->BindAction(DodgeAction,        ETriggerEvent::Triggered,this, &ThisClass::DodgeTrigger     );
@@ -103,6 +108,7 @@ void APlayerCharacter::Move(const FInputActionValue& value)
 
 void APlayerCharacter::Look(const FInputActionValue& value)
 {
+    if (lockOnComponents->IsLockedOn()) return;
     const FVector2D look = value.Get<FVector2D>();
 
     AddControllerYawInput(look.X);
@@ -114,20 +120,21 @@ void APlayerCharacter::Attack(const FInputActionValue& value)
     combatComponents->TryAttack();
 }
 
-void APlayerCharacter::Jump(const FInputActionValue& value)
+void APlayerCharacter::JumpFunc(const FInputActionValue& value)
 {
     if (!combatComponents) return;
     if (combatComponents->IsAttacking()) return;
-    Super::Jump();
+    Jump();
 }
 
 void APlayerCharacter::LockOn(const FInputActionValue& value)
 {
-
+    lockOnComponents->ToggleLockOn();
 }
 
 void APlayerCharacter::SprintStart(const FInputActionValue& value)
 {
+    bIsSprinting = true;
 	GetCharacterMovement()->MaxWalkSpeed = speed * speedMultiplier;
 }
 
@@ -140,24 +147,27 @@ void APlayerCharacter::DodgeTrigger(const FInputActionValue& value)
 
 void APlayerCharacter::SprintEnd(const FInputActionValue& value)
 {
+    bIsSprinting = false;
     GetCharacterMovement()->MaxWalkSpeed = speed;
 }
 
-void APlayerCharacter::LockOnTarget()
+void APlayerCharacter::LockOnSwitch(const FInputActionValue& value)
 {
-    if (bIsLockOn)
-    {
-        //bUseControllerRotationYaw = false;
-        //GetCharacterMovement()->bOrientRotationToMovement = true;
-    }
-    else
-    {
-        //bUseControllerRotationYaw = true;
-        //GetCharacterMovement()->bOrientRotationToMovement = false;
-    }
+    if (lockOnComponents == nullptr) return;
+
+	lockOnComponents->SwitchTarget(value.Get<float>());
 }
 
 void APlayerCharacter::EndLanding()
 {
     bIsLanding = false;
+}
+
+void APlayerCharacter::UpdateRotationMode()
+{
+    if (lockOnComponents == nullptr) return;
+
+    const bool bStrafe = lockOnComponents->IsLockedOn() && !bIsSprinting;
+    GetCharacterMovement()->bOrientRotationToMovement = !bStrafe;
+    GetCharacterMovement()->bUseControllerDesiredRotation = bStrafe;
 }

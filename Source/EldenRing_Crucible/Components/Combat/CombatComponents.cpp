@@ -28,6 +28,7 @@ void UCombatComponents::BeginPlay()
 void UCombatComponents::TryAttack()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("TryAttack 호출"));
+	UE_LOG(LogTemp, Warning, TEXT("TryAttack - Attacking:%d"), bIsAttacking);
 	if (bIsAttacking)
 	{
 		bComboQueued = true; // 다음 타 예약

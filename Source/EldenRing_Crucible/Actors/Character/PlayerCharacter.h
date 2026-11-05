@@ -25,17 +25,22 @@ private:
 	void Move		(const struct FInputActionValue& value);
 	void Look		(const struct FInputActionValue& value);
 	void Attack		(const struct FInputActionValue& value);
-	void Jump		(const struct FInputActionValue& value);
+	void JumpFunc	(const struct FInputActionValue& value);
 	void LockOn		(const struct FInputActionValue& value);
 
 	void SprintStart	(const struct FInputActionValue& value);	//(구르기 꾹 누르면 달리기)
 	void DodgeTrigger	(const struct FInputActionValue& value);	//(구르기 꾹 누르면 달리기)
 	void SprintEnd		(const struct FInputActionValue& value);	//(구르기 꾹 누르면 달리기)
+	
+	void LockOnSwitch	(const struct FInputActionValue& value);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCombatComponents> combatComponents;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LockOn", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class ULockOnComponent> lockOnComponents;
 
+protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> MappingContext;
 	// Call Action Mappint
@@ -54,6 +59,8 @@ protected:
 	TObjectPtr<class UInputAction> AttackAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> LockOnAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> LockOnSwitchAction;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
@@ -74,9 +81,13 @@ protected:
 protected:
 	bool bIsLockOn = false;
 	bool bIsLanding = false;
+	bool bIsSprinting = false;
 	FTimerHandle landTimer;
 
 private:
-	void LockOnTarget();
 	void EndLanding();
+
+private:
+	UFUNCTION()
+	void UpdateRotationMode();
 };
