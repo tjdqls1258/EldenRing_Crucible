@@ -1,37 +1,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/AnimInstance.h"
+#include "AnimClass/CharacterAnimInstanceBase.h"
 #include "PlayerAnimInstance.generated.h"
 
 UCLASS()
-class ELDENRING_CRUCIBLE_API UPlayerAnimInstance : public UAnimInstance
+class ELDENRING_CRUCIBLE_API UPlayerAnimInstance : public UCharacterAnimInstanceBase
 {
 	GENERATED_BODY()
+	// 착용한 장비, 한손, 양손 등에 따라 추가 필요.
+protected:
+	virtual void NativeInitializeAnimation() override;
 
 private:
-	virtual void NativeInitializeAnimation() override;
-	virtual void NativeUpdateAnimation(float deltaSeconds) override;
-
-
-protected:
-	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class ACharacter> owningCharacter;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UCharacterMovementComponent> movement;
-
-protected:
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float speed;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float direction;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float velocityZ;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	bool bIsFalling;
-
+	class UCombatComponents* combatComponents;
 };
