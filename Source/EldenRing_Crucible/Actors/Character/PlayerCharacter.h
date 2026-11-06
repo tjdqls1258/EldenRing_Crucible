@@ -24,7 +24,8 @@ private:
 	//Input Action Functions
 	void Move		(const struct FInputActionValue& value);
 	void Look		(const struct FInputActionValue& value);
-	void Attack		(const struct FInputActionValue& value);
+	void RightAttack(const struct FInputActionValue& value);
+	void LeftAttack	(const struct FInputActionValue& value);
 	void JumpFunc	(const struct FInputActionValue& value);
 	void LockOn		(const struct FInputActionValue& value);
 
@@ -56,7 +57,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> DodgeAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> AttackAction;
+	TObjectPtr<class UInputAction> RightAttackAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> LeftAttackAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> LockOnAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))

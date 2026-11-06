@@ -67,7 +67,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		eic->BindAction(MoveAction,         ETriggerEvent::Triggered,this, &ThisClass::Move             );
 		eic->BindAction(LookAction,         ETriggerEvent::Triggered,this, &ThisClass::Look             );
         eic->BindAction(JumpAction,         ETriggerEvent::Started,  this, &ThisClass::Jump             );
-        eic->BindAction(AttackAction,       ETriggerEvent::Started,  this, &ThisClass::Attack           );
+        eic->BindAction(RightAttackAction,  ETriggerEvent::Started,  this, &ThisClass::RightAttack      );
+        eic->BindAction(LeftAttackAction,   ETriggerEvent::Started,  this, &ThisClass::LeftAttack       );
         eic->BindAction(LockOnAction,       ETriggerEvent::Started,  this, &ThisClass::LockOn           );
         eic->BindAction(LockOnSwitchAction, ETriggerEvent::Started,  this, &ThisClass::LockOnSwitch     );
         eic->BindAction(SprintAction,       ETriggerEvent::Triggered,this, &ThisClass::SprintStart      ); 
@@ -115,9 +116,14 @@ void APlayerCharacter::Look(const FInputActionValue& value)
     AddControllerPitchInput(look.Y);
 }
 
-void APlayerCharacter::Attack(const FInputActionValue& value)
+void APlayerCharacter::RightAttack(const FInputActionValue& value)
 {
-    combatComponents->TryAttack();
+    combatComponents->TryAttack(EWeaponSlot::Right);
+}
+
+void APlayerCharacter::LeftAttack(const FInputActionValue& value)
+{
+    combatComponents->TryAttack(EWeaponSlot::Left);
 }
 
 void APlayerCharacter::JumpFunc(const FInputActionValue& value)
