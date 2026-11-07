@@ -6,10 +6,11 @@
 #include "EnhancedInputSubsystems.h"
 #include "Components/Combat/CombatComponents.h"
 #include "Components/Combat/LockOnComponent.h"
+#include "Components/Combat/EquipmentComponent.h"
 
 APlayerCharacter::APlayerCharacter()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
     springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
     springArm->SetupAttachment(RootComponent);
@@ -22,7 +23,7 @@ APlayerCharacter::APlayerCharacter()
 
 	combatComponents = CreateDefaultSubobject<UCombatComponents>(TEXT("CombatComponents"));
     lockOnComponents = CreateDefaultSubobject<ULockOnComponent>(TEXT("LockOnComponents"));
-
+    equipmentComponents = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentCompoents"));
     bUseControllerRotationYaw = false;
     GetCharacterMovement()->bOrientRotationToMovement = true;
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
@@ -66,7 +67,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     {
 		eic->BindAction(MoveAction,         ETriggerEvent::Triggered,this, &ThisClass::Move             );
 		eic->BindAction(LookAction,         ETriggerEvent::Triggered,this, &ThisClass::Look             );
-        eic->BindAction(JumpAction,         ETriggerEvent::Started,  this, &ThisClass::Jump             );
+        eic->BindAction(JumpAction,         ETriggerEvent::Started,  this, &ThisClass::JumpFunc         );
         eic->BindAction(RightAttackAction,  ETriggerEvent::Started,  this, &ThisClass::RightAttack      );
         eic->BindAction(LeftAttackAction,   ETriggerEvent::Started,  this, &ThisClass::LeftAttack       );
         eic->BindAction(LockOnAction,       ETriggerEvent::Started,  this, &ThisClass::LockOn           );
@@ -74,6 +75,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
         eic->BindAction(SprintAction,       ETriggerEvent::Triggered,this, &ThisClass::SprintStart      ); 
         eic->BindAction(SprintAction,       ETriggerEvent::Completed,this, &ThisClass::SprintEnd        );
         eic->BindAction(DodgeAction,        ETriggerEvent::Triggered,this, &ThisClass::DodgeTrigger     );
+        eic->BindAction(SwapWeaponAction,   ETriggerEvent::Started,  this, &ThisClass::SwapWeapon       );
     }
 }
 
@@ -140,14 +142,17 @@ void APlayerCharacter::LockOn(const FInputActionValue& value)
 
 void APlayerCharacter::SprintStart(const FInputActionValue& value)
 {
+    if (bIsSprinting) return;
+
     bIsSprinting = true;
-	GetCharacterMovement()->MaxWalkSpeed = speed * speedMultiplier;
+    GetCharacterMovement()->MaxWalkSpeed = speed * speedMultiplier;
+    UpdateRotationMode();
 }
 
 void APlayerCharacter::DodgeTrigger(const FInputActionValue& value)
 {
     if (!combatComponents) return;
-    if (!combatComponents->CancelAttack()) return;
+    if (combatComponents->IsAttacking() && !combatComponents->CancelAttack()) return;
     //±¸¸£±â
 }
 
@@ -155,6 +160,7 @@ void APlayerCharacter::SprintEnd(const FInputActionValue& value)
 {
     bIsSprinting = false;
     GetCharacterMovement()->MaxWalkSpeed = speed;
+    UpdateRotationMode();
 }
 
 void APlayerCharacter::LockOnSwitch(const FInputActionValue& value)
@@ -162,6 +168,13 @@ void APlayerCharacter::LockOnSwitch(const FInputActionValue& value)
     if (lockOnComponents == nullptr) return;
 
 	lockOnComponents->SwitchTarget(value.Get<float>());
+}
+
+void APlayerCharacter::SwapWeapon(const FInputActionValue& value)
+{
+    if (combatComponents->IsAttacking()) return;
+
+    equipmentComponents->CycleWeapon(value.Get<float>() > 0.f ? EWeaponSlot::Right : EWeaponSlot::Left);
 }
 
 void APlayerCharacter::EndLanding()

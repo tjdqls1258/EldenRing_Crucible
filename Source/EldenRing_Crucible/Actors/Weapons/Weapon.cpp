@@ -16,10 +16,11 @@ void AWeapon::Initialize(ACharacter* character, const UWeaponDataAsset* data, EW
 {
     Mesh->SetStaticMesh(data->Mesh);
 
-    const FName socket = slot == EWeaponSlot::Right
-        ? data->RightAttachSocket
-        : data->LeftAttachSocket;
+    const bool bRight = slot == EWeaponSlot::Right;
+    const FName socket = bRight ? data->RightAttachSocket : data->LeftAttachSocket;
 
     AttachToComponent(character->GetMesh(),
         FAttachmentTransformRules::SnapToTargetNotIncludingScale, socket);
+
+    SetActorRelativeTransform(bRight ? data->RightAttachOffset : data->LeftAttachOffset);
 }

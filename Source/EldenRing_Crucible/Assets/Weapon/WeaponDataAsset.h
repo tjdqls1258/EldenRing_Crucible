@@ -20,6 +20,12 @@ public:
     UPROPERTY(EditDefaultsOnly, Category = "Visual")
     FName LeftAttachSocket = NAME_None;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Visual")
+    FTransform RightAttachOffset;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Visual")
+    FTransform LeftAttachOffset;
+
     UPROPERTY(EditDefaultsOnly, Category = "Combat")
     float BaseDamage = 20.f;
 

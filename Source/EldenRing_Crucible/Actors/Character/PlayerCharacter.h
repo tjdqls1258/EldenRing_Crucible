@@ -4,6 +4,12 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+class UCombatComponents;
+class UEquipmentComponent;
+class ULockOnComponent;
+class UInputMappingContext;
+class UInputAction;
+
 UCLASS()
 class ELDENRING_CRUCIBLE_API APlayerCharacter : public ACharacter
 {
@@ -35,35 +41,43 @@ private:
 	
 	void LockOnSwitch	(const struct FInputActionValue& value);
 
+	void SwapWeapon(const struct FInputActionValue& value);
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UCombatComponents> combatComponents;
+	TObjectPtr<UCombatComponents> combatComponents;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TObjectPtr<UEquipmentComponent> equipmentComponents;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LockOn", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class ULockOnComponent> lockOnComponents;
+	TObjectPtr<ULockOnComponent> lockOnComponents;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputMappingContext> MappingContext;
+	TObjectPtr<UInputMappingContext> MappingContext;
 	// Call Action Mappint
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> MoveAction;
+	TObjectPtr<UInputAction> MoveAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> LookAction;
+	TObjectPtr<UInputAction> LookAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> JumpAction;
+	TObjectPtr<UInputAction> JumpAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> SprintAction;
+	TObjectPtr<UInputAction> SprintAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> DodgeAction;
+	TObjectPtr<UInputAction> DodgeAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> RightAttackAction;
+	TObjectPtr<UInputAction> RightAttackAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> LeftAttackAction;
+	TObjectPtr<UInputAction> LeftAttackAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> LockOnAction;
+	TObjectPtr<UInputAction> LockOnAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> LockOnSwitchAction;
+	TObjectPtr<UInputAction> LockOnSwitchAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> SwapWeaponAction;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))

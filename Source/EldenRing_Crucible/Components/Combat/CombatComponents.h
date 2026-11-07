@@ -9,6 +9,7 @@ class ACharacter;
 class AWeapon;
 class UAnimMontage;
 class UWeaponDataAsset;
+class UEquipmentComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ELDENRING_CRUCIBLE_API UCombatComponents : public UActorComponent
@@ -21,7 +22,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 protected:
 	bool bIsAttacking = false;
@@ -36,14 +36,12 @@ protected:
 
 	TObjectPtr<ACharacter> Character;
 	TObjectPtr<UPrimitiveComponent> TraceMesh;
+	TObjectPtr<UEquipmentComponent> Equipment;
 
 	FHitTraceData ActiveTrace;
 
 	TArray<TObjectPtr<AActor>> HitActors;
 	TArray<FVector> PreviousPoints;
-
-	FWeaponSlotData RightSlot;
-	FWeaponSlotData LeftSlot;
 
 public:
 	void TryAttack(EWeaponSlot slot);
@@ -56,8 +54,6 @@ public:
 	void BeginHit(FName TraceId);
 	void EndHit();
 
-	void EquipWeapon(EWeaponSlot slot, UWeaponDataAsset* data);
-
 protected:
 	void PlayCurrentStepAim();
 	void HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted, int32 playId);
@@ -69,12 +65,10 @@ private:
 
 	const TArray<FAttackStep>& GetActiveCombo() const;
 	const FHitTraceData* FindHitTrace(FName TraceId) const;
+	const UWeaponDataAsset* GetAttackWeaponData() const;
 
 	float GetActiveBaseDamage() const;
 	bool CanDamage(const AActor* Victim) const;
-
-	FWeaponSlotData* FindSlot(EWeaponSlot slot);
-	const FWeaponSlotData& GetSlot(EWeaponSlot slot) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "CombatAnimations")

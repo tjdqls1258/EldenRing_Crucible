@@ -30,8 +30,10 @@ struct FHitTraceData
     UPROPERTY(EditDefaultsOnly) FName EndSocket;
 
 public:
-    UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "0.0", ToolTip = "0이면 선, 아니면 원형")) float Radius = 0.f;
-    UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "1")) int32 SampleCount = 1;
+    UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "0.0", ToolTip = "0이면 선, 아니면 원형")) 
+    float Radius = 0.f;
+    UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "1", ToolTip = "시작과 끝 사이에 체크할 Trace의 개수")) 
+    int32 SampleCount = 1;
 };
 
 USTRUCT()

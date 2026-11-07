@@ -4,9 +4,12 @@
 #include "Animation/AnimMontage.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/DamageType.h"
 #include "Kismet/GameplayStatics.h"
-#include "Actors/Weapons/Weapon.h"
+#include "DrawDebugHelpers.h"
+#include "Engine/World.h"
 #include "Assets/Weapon/WeaponDataAsset.h"
+#include "Components/Combat/EquipmentComponent.h"
 
 UCombatComponents::UCombatComponents()
 {
@@ -20,6 +23,7 @@ void UCombatComponents::BeginPlay()
 	Super::BeginPlay();
 
 	Character = CastChecked<ACharacter>(GetOwner());
+	Equipment = GetOwner()->FindComponentByClass<UEquipmentComponent>();
 }
 
 void UCombatComponents::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -30,21 +34,6 @@ void UCombatComponents::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	{
 		PerformHitTrace();
 	}
-}
-
-void UCombatComponents::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	if (RightSlot.Actor)
-	{
-		RightSlot.Actor->Destroy();
-	}
-
-	if (LeftSlot.Actor)
-	{
-		LeftSlot.Actor->Destroy();
-	}
-
-	Super::EndPlay(EndPlayReason);
 }
 
 void UCombatComponents::TryAttack(EWeaponSlot slot)
@@ -169,11 +158,9 @@ void UCombatComponents::BeginHit(FName TraceId)
 		return;
 	}
 
-	const FWeaponSlotData& Slot = GetSlot(AttackSlot);
-	const bool bUseWeaponMesh = TraceId.IsNone() && Slot.Actor != nullptr;
-
-	TraceMesh = bUseWeaponMesh
-		? static_cast<UPrimitiveComponent*>(Slot.Actor->GetMesh())
+	UPrimitiveComponent* WeaponMesh = Equipment ? Equipment->GetWeaponMesh(AttackSlot) : nullptr;
+	TraceMesh = (TraceId.IsNone() && WeaponMesh)
+		? WeaponMesh
 		: static_cast<UPrimitiveComponent*>(Character->GetMesh());
 
 	if (!TraceMesh->DoesSocketExist(Trace->StartSocket) || !TraceMesh->DoesSocketExist(Trace->EndSocket))
@@ -277,41 +264,6 @@ void UCombatComponents::PerformHitTrace()
 	}
 }
 
-void UCombatComponents::EquipWeapon(EWeaponSlot slot, UWeaponDataAsset* data)
-{
-	if (bIsAttacking || !Character)
-	{
-		return;
-	}
-
-	FWeaponSlotData* Target = FindSlot(slot);
-	if (Target->Actor)
-	{
-		Target->Actor->Destroy();
-	}
-
-	Target->Actor = nullptr;
-	Target->Data = data;
-
-	if (!data)
-	{
-		return; // ¸Ç¼Õ
-	}
-
-	FActorSpawnParameters Params;
-	Params.Owner = Character;
-	Params.Instigator = Character;
-
-	Target->Actor = GetWorld()->SpawnActor<AWeapon>(AWeapon::StaticClass(), FTransform::Identity, Params);
-	if (!Target->Actor)
-	{
-		Target->Data = nullptr;
-		return;
-	}
-
-	Target->Actor->Initialize(Character, data, slot);
-}
-
 void UCombatComponents::HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted, int32 playId)
 {
 	if (playId == activePlayId)
@@ -343,7 +295,7 @@ void UCombatComponents::FaceAttackDirection()
 
 const TArray<FAttackStep>& UCombatComponents::GetActiveCombo() const
 {
-	const UWeaponDataAsset* Data = GetSlot(AttackSlot).Data;
+	const UWeaponDataAsset* Data = GetAttackWeaponData();
 	if (!Data)
 	{
 		return DefaultCombo;
@@ -360,15 +312,20 @@ const FHitTraceData* UCombatComponents::FindHitTrace(FName TraceId) const
 {
 	if (TraceId.IsNone())
 	{
-		const UWeaponDataAsset* Data = GetSlot(AttackSlot).Data;
+		const UWeaponDataAsset* Data = GetAttackWeaponData();
 		return Data ? &Data->HitTrace : BodyTraces.Find(UnarmedTraceId);
 	}
 	return BodyTraces.Find(TraceId);
 }
 
+const UWeaponDataAsset* UCombatComponents::GetAttackWeaponData() const
+{
+	return Equipment ? Equipment->GetWeaponData(AttackSlot) : nullptr;
+}
+
 float UCombatComponents::GetActiveBaseDamage() const
 {
-	const UWeaponDataAsset* Data = GetSlot(AttackSlot).Data;
+	const UWeaponDataAsset* Data = GetAttackWeaponData();
 	return Data ? Data->BaseDamage : DefaultBaseDamage;
 }
 
@@ -380,14 +337,4 @@ bool UCombatComponents::CanDamage(const AActor* Victim) const
 	}
 
 	return GetOwner()->ActorHasTag(TEXT("Enemy")) != Victim->ActorHasTag(TEXT("Enemy"));
-}
-
-FWeaponSlotData* UCombatComponents::FindSlot(EWeaponSlot slot)
-{
-	return slot == EWeaponSlot::Right ? &RightSlot : &LeftSlot;
-}
-
-const FWeaponSlotData& UCombatComponents::GetSlot(EWeaponSlot slot) const
-{
-	return slot == EWeaponSlot::Right ? RightSlot : LeftSlot;
 }
