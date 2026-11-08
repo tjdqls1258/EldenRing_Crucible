@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Actors/Character/CharacterBase.h"
 #include "PlayerCharacter.generated.h"
 
 class UCombatComponents;
@@ -11,7 +11,7 @@ class UInputMappingContext;
 class UInputAction;
 
 UCLASS()
-class ELDENRING_CRUCIBLE_API APlayerCharacter : public ACharacter
+class ELDENRING_CRUCIBLE_API APlayerCharacter : public ACharacterBase
 {
 	GENERATED_BODY()
 
@@ -25,6 +25,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Landed(const FHitResult& Hit) override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 
 private:
 	//Input Action Functions
@@ -44,11 +45,6 @@ private:
 	void SwapWeapon(const struct FInputActionValue& value);
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCombatComponents> combatComponents;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	TObjectPtr<UEquipmentComponent> equipmentComponents;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LockOn", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ULockOnComponent> lockOnComponents;
 
@@ -84,8 +80,7 @@ protected:
 	TObjectPtr<class USpringArmComponent> springArm;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> camera;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	float maxHealth = 100.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float speed = 400;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))

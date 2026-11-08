@@ -1,14 +1,12 @@
 #include "Actors/Enemy/EnemyBase.h"
 #include "Components/Combat/CombatComponents.h"
 #include "Components/Combat/EquipmentComponent.h"
+#include "Components/Stat/HealthComponent.h"
 
 AEnemyBase::AEnemyBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	Tags.AddUnique(FName("Enemy"));
-
-	combatComponents = CreateDefaultSubobject<UCombatComponents>(TEXT("CombatComponts"));
-	equipmentComponents = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentCompoents"));
 }
 
 void AEnemyBase::BeginPlay()

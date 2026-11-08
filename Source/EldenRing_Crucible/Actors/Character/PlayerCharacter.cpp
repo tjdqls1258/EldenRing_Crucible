@@ -7,6 +7,7 @@
 #include "Components/Combat/CombatComponents.h"
 #include "Components/Combat/LockOnComponent.h"
 #include "Components/Combat/EquipmentComponent.h"
+#include "Components/Stat/HealthComponent.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -21,9 +22,8 @@ APlayerCharacter::APlayerCharacter()
     camera->SetupAttachment(springArm, USpringArmComponent::SocketName);
     camera->bUsePawnControlRotation = false;
 
-	combatComponents = CreateDefaultSubobject<UCombatComponents>(TEXT("CombatComponents"));
     lockOnComponents = CreateDefaultSubobject<ULockOnComponent>(TEXT("LockOnComponents"));
-    equipmentComponents = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentCompoents"));
+
     bUseControllerRotationYaw = false;
     GetCharacterMovement()->bOrientRotationToMovement = true;
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
@@ -89,6 +89,11 @@ void APlayerCharacter::Landed(const FHitResult& Hit)
     GetCharacterMovement()->StopMovementImmediately();
     GetWorld()->GetTimerManager().SetTimer(landTimer, this,
         &ThisClass::EndLanding, landLockTime, false);
+}
+
+float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+    return 0.0f;
 }
 
 void APlayerCharacter::Move(const FInputActionValue& value)
