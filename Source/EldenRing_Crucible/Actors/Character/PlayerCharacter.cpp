@@ -125,11 +125,13 @@ void APlayerCharacter::Look(const FInputActionValue& value)
 
 void APlayerCharacter::RightAttack(const FInputActionValue& value)
 {
+    if (!combatComponents) return;
     combatComponents->TryAttack(EWeaponSlot::Right);
 }
 
 void APlayerCharacter::LeftAttack(const FInputActionValue& value)
 {
+    if (!combatComponents) return;
     combatComponents->TryAttack(EWeaponSlot::Left);
 }
 

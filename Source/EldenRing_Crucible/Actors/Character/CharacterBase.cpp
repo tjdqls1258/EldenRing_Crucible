@@ -7,7 +7,7 @@
 
 ACharacterBase::ACharacterBase()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	combatComponents = CreateDefaultSubobject<UCombatComponents>(TEXT("CombatComponents"));
 	equipmentComponents = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentCompoents"));

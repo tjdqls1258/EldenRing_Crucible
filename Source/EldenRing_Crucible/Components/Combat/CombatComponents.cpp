@@ -40,7 +40,7 @@ void UCombatComponents::TryAttack(EWeaponSlot slot)
 {
 	if (bIsAttacking)
 	{
-		if (bCanQueueCombo) // && slot == AttackSlot)
+		if (bCanQueueCombo && slot == AttackSlot)
 		{
 			bComboQueued = true;
 		}
@@ -53,7 +53,7 @@ void UCombatComponents::TryAttack(EWeaponSlot slot)
 	{
 		return;
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("Try Attack"));
 	currentComboStep = 0;
 	PlayCurrentStepAim();
 }
@@ -89,10 +89,12 @@ void UCombatComponents::PlayCurrentStepAim()
 
 	if (!AnimInstance || !Combo.IsValidIndex(currentComboStep) || !Combo[currentComboStep].Montage)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Anim Or Combo Null"));
 		ResetCombo();
 		return;
 	}
 
+	UE_LOG(LogTemp, Warning, TEXT("Get AnimMotage"));
 	UAnimMontage* Montage = Combo[currentComboStep].Montage;
 	EndHit();
 	bComboQueued = false;
@@ -242,7 +244,7 @@ void UCombatComponents::PerformHitTrace()
 		if (bDrawHitTrace)
 		{
 			DrawDebugLine(GetWorld(), PreviousPoints[i], Current,
-				Hits.IsEmpty() ? FColor::Green : FColor::Red, false, 1.f);
+				Hits.IsEmpty() ? NoHitColor : HitColor, false, 1.f);
 		}
 #endif
 

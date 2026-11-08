@@ -85,6 +85,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Debug")
 	bool bDrawHitTrace = false;
+	UPROPERTY(EditAnywhere, Category = "Combat|Debug")
+	FColor NoHitColor = FColor::Green;
+	UPROPERTY(EditAnywhere, Category = "Combat|Debug")
+	FColor HitColor = FColor::Red;
 	
 public:
 	FORCEINLINE bool IsAttacking() const { return bIsAttacking; }

@@ -19,6 +19,14 @@ void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (combatComponents == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("combatComponents == null"));
+		return;
+	}
+	if (healthComponents->IsDead()) return;
+	combatComponents->TryAttack(EWeaponSlot::Right);
+
 }
 
 void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
