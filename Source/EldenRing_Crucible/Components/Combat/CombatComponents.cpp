@@ -89,12 +89,10 @@ void UCombatComponents::PlayCurrentStepAim()
 
 	if (!AnimInstance || !Combo.IsValidIndex(currentComboStep) || !Combo[currentComboStep].Montage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Anim Or Combo Null"));
 		ResetCombo();
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Get AnimMotage"));
 	UAnimMontage* Montage = Combo[currentComboStep].Montage;
 	EndHit();
 	bComboQueued = false;
@@ -338,5 +336,6 @@ bool UCombatComponents::CanDamage(const AActor* Victim) const
 		return false;
 	}
 
-	return GetOwner()->ActorHasTag(TEXT("Enemy")) != Victim->ActorHasTag(TEXT("Enemy"));
+	UE_LOG(LogTemp, Warning, TEXT("Can Damage: %d %d"), GetOwner()->ActorHasTag(CanDamageTag), Victim->ActorHasTag(CanDamageTag));
+	return GetOwner()->ActorHasTag(CanDamageTag) != Victim->ActorHasTag(CanDamageTag);
 }

@@ -17,6 +17,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnDeathStarted(AActor* killer) {}
+	virtual void PostInitializeComponents() override;
 	UAnimMontage* SelectDeathMontage(AActor* killer) const;
 
 protected:
@@ -25,7 +26,7 @@ protected:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UCombatComponents> combatComponents;
+	TObjectPtr<class UCombatComponents> combatComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UEquipmentComponent> equipmentComponents;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stat", meta = (AllowPrivateAccess = "true"))

@@ -9,7 +9,7 @@ ACharacterBase::ACharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	combatComponents = CreateDefaultSubobject<UCombatComponents>(TEXT("CombatComponents"));
+	combatComponent = CreateDefaultSubobject<UCombatComponents>(TEXT("CombatComponent"));
 	equipmentComponents = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentCompoents"));
 	healthComponents = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponents"));
 }
@@ -18,14 +18,17 @@ void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UCombatComponents* Found =
+		FindComponentByClass<UCombatComponents>();
+
 	healthComponents->OnDeath.AddDynamic(this, &ThisClass::HandleDeath);
 }
 
 void ACharacterBase::HandleDeath(AActor* killer)
 {
-	if (combatComponents)
+	if (combatComponent)
 	{
-		combatComponents->CancelAttack();
+		combatComponent->CancelAttack();
 	}
 
 	GetCharacterMovement()->DisableMovement();
@@ -37,6 +40,22 @@ void ACharacterBase::HandleDeath(AActor* killer)
 	{
 		PlayAnimMontage(montage);
 	}
+}
+
+void ACharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (!IsValid(combatComponent))
+	{
+		combatComponent =
+			FindComponentByClass<UCombatComponents>();
+	}
+
+	ensureMsgf(
+		IsValid(combatComponent),
+		TEXT("CombatComponent is nullptr!")
+	);
 }
 
 UAnimMontage* ACharacterBase::SelectDeathMontage(AActor* killer) const

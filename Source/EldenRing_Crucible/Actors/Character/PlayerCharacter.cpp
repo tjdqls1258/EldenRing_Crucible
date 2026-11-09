@@ -91,16 +91,12 @@ void APlayerCharacter::Landed(const FHitResult& Hit)
         &ThisClass::EndLanding, landLockTime, false);
 }
 
-float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-    return 0.0f;
-}
-
 void APlayerCharacter::Move(const FInputActionValue& value)
 {
+    if (healthComponents->IsDead()) return;
     if (!Controller || bIsLanding) return;
-    if (!combatComponents) return;
-    if (combatComponents->IsAttacking()) return;
+    if (!combatComponent) return;
+    if (combatComponent->IsAttacking()) return;
 
     const FVector2D dir = value.Get<FVector2D>();
 
@@ -125,25 +121,29 @@ void APlayerCharacter::Look(const FInputActionValue& value)
 
 void APlayerCharacter::RightAttack(const FInputActionValue& value)
 {
-    if (!combatComponents) return;
-    combatComponents->TryAttack(EWeaponSlot::Right);
+    if (healthComponents->IsDead()) return;
+    if (!combatComponent) return;
+    combatComponent->TryAttack(EWeaponSlot::Right);
 }
 
 void APlayerCharacter::LeftAttack(const FInputActionValue& value)
 {
-    if (!combatComponents) return;
-    combatComponents->TryAttack(EWeaponSlot::Left);
+    if (healthComponents->IsDead()) return;
+    if (!combatComponent) return;
+    combatComponent->TryAttack(EWeaponSlot::Left);
 }
 
 void APlayerCharacter::JumpFunc(const FInputActionValue& value)
 {
-    if (!combatComponents) return;
-    if (combatComponents->IsAttacking()) return;
+    if (healthComponents->IsDead()) return;
+    if (!combatComponent) return;
+    if (combatComponent->IsAttacking()) return;
     Jump();
 }
 
 void APlayerCharacter::LockOn(const FInputActionValue& value)
 {
+    if (healthComponents->IsDead()) return;
     lockOnComponents->ToggleLockOn();
 }
 
@@ -158,8 +158,9 @@ void APlayerCharacter::SprintStart(const FInputActionValue& value)
 
 void APlayerCharacter::DodgeTrigger(const FInputActionValue& value)
 {
-    if (!combatComponents) return;
-    if (combatComponents->IsAttacking() && !combatComponents->CancelAttack()) return;
+    if (healthComponents->IsDead()) return;
+    if (!combatComponent) return;
+    if (combatComponent->IsAttacking() && !combatComponent->CancelAttack()) return;
     //±¸¸£±â
 }
 
@@ -172,6 +173,7 @@ void APlayerCharacter::SprintEnd(const FInputActionValue& value)
 
 void APlayerCharacter::LockOnSwitch(const FInputActionValue& value)
 {
+    if (healthComponents->IsDead()) return;
     if (lockOnComponents == nullptr) return;
 
 	lockOnComponents->SwitchTarget(value.Get<float>());
@@ -179,7 +181,7 @@ void APlayerCharacter::LockOnSwitch(const FInputActionValue& value)
 
 void APlayerCharacter::SwapWeapon(const FInputActionValue& value)
 {
-    if (combatComponents->IsAttacking()) return;
+    if (combatComponent->IsAttacking()) return;
 
     equipmentComponents->CycleWeapon(value.Get<float>() > 0.f ? EWeaponSlot::Right : EWeaponSlot::Left);
 }

@@ -19,13 +19,13 @@ void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (combatComponents == nullptr)
+	if (combatComponent == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("combatComponents == null"));
 		return;
 	}
 	if (healthComponents->IsDead()) return;
-	combatComponents->TryAttack(EWeaponSlot::Right);
+	combatComponent->TryAttack(EWeaponSlot::Right);
 
 }
 

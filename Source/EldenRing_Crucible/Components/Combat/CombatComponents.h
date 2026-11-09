@@ -78,10 +78,13 @@ protected:
 	TMap<FName, FHitTraceData> BodyTraces;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Hit")
-	FName UnarmedTraceId = NAME_None;
+	FName UnarmedTraceId;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Hit")
 	float DefaultBaseDamage = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Hit")
+	FName CanDamageTag;
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Debug")
 	bool bDrawHitTrace = false;

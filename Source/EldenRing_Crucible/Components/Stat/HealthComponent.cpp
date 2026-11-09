@@ -36,6 +36,7 @@ void UHealthComponent::SetInvincible(bool bInInvincible)
 
 void UHealthComponent::HandleTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
+	UE_LOG(LogTemp, Warning, TEXT("GetDamage : %f, CurrentHp : %f, %d, %d"), Damage, CurrentHealth, bIsDead, bInvincible);
 	if (bIsDead || bInvincible || Damage <= 0.f)
 	{
 		return;
